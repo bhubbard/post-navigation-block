@@ -1,0 +1,28 @@
+
+  /**
+ * The following styles get applied inside the editor only.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+
+.wp-block-telex-post-navigation {
+	.components-notice {
+		margin-bottom: 1rem;
+	}
+}
+
+/* Editor-specific hover effects */
+.block-editor-block-list__block .wp-block-telex-post-navigation__card:hover {
+	.wp-block-telex-post-navigation__card-bg {
+		transform: scale(1.02);
+	}
+}
+
+/* Editor selection states */
+.wp-block-telex-post-navigation.is-selected {
+	.wp-block-telex-post-navigation__card {
+		outline: 1px solid var(--wp-admin-theme-color, #007cba);
+		outline-offset: 1px;
+	}
+}
+	

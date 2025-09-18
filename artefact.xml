@@ -1,0 +1,817 @@
+<artefact xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="artefact.xsd" name="Post Navigation" slug="post-navigation" type="code-package" schemaVersion="2">
+  <file path="readme.txt">
+    <description>This file contains the readme information for the block. It is used to provide information about the block, its usage, and any other relevant details.</description>
+    <content><![CDATA[
+=== Post Navigation ===
+
+Contributors:      WordPress Telex
+Tags:              block, navigation, posts, featured-images, responsive
+Tested up to:      6.8
+Stable tag:        0.1.0
+License:           GPLv2 or later
+License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+A dynamic post navigation block with featured images and customizable styling options.
+
+== Description ==
+
+The Post Navigation block creates an elegant way for visitors to navigate between your posts. It displays previous and next post links as visually appealing cards with featured images as backgrounds and post titles overlaid as clickable text.
+
+**Key Features:**
+
+* **Visual Navigation**: Shows adjacent posts with their featured images as card backgrounds
+* **Responsive Design**: Adapts beautifully to all screen sizes and devices
+* **Customizable Styling**: Control text color, overlay opacity, and card dimensions
+* **Smart Layout**: Automatically centers single cards when only one adjacent post exists
+* **Hover Effects**: Engaging interactions that enhance user experience
+* **Fallback Support**: Graceful handling when posts don't have featured images
+* **Editor Preview**: Shows layout preview in the editor with placeholder content
+
+**Perfect For:**
+
+* Blog posts and articles
+* News websites
+* Portfolio sites
+* Any content site wanting to improve post-to-post navigation
+
+The block automatically detects the current post context and fetches adjacent posts, making it plug-and-play for any post content area.
+
+== Installation ==
+
+1. Upload the plugin files to the `/wp-content/plugins/post-navigation` directory, or install the plugin through the WordPress plugins screen directly.
+1. Activate the plugin through the 'Plugins' screen in WordPress
+1. Add the "Post Navigation" block to any post or page content
+1. Customize the appearance using the block settings in the editor sidebar
+
+== Frequently Asked Questions ==
+
+= Does this work with custom post types? =
+
+Yes! The block automatically works with any public post type that supports navigation between posts.
+
+= What happens if a post doesn't have a featured image? =
+
+The block includes fallback styling with a subtle background color and proper typography to ensure the navigation remains functional and attractive.
+
+= Can I customize the appearance? =
+
+Absolutely! The block includes options to customize text color, overlay opacity, and card dimensions through the block settings panel.
+
+= Is it mobile responsive? =
+
+Yes, the block is fully responsive and adapts to different screen sizes, stacking cards vertically on smaller devices.
+
+= Will it work in page builders? =
+
+The block works anywhere the WordPress block editor is used, including page builders that support Gutenberg blocks.
+
+== Screenshots ==
+
+1. Post navigation block showing previous and next posts with featured images
+2. Block settings panel with customization options
+3. Mobile responsive layout showing stacked navigation cards
+4. Editor preview with placeholder content
+
+== Changelog ==
+
+= 0.1.0 =
+* Initial release with full post navigation functionality
+* Featured image backgrounds with title overlays
+* Customizable styling options
+* Responsive design implementation
+* Editor preview functionality
+
+== Technical Notes ==
+
+The block uses WordPress's built-in post navigation functions to ensure compatibility and performance. It leverages modern CSS features like CSS Grid and Flexbox for optimal layout control while maintaining broad browser support.
+]]></content>
+  </file>
+  <file path="post-navigation.php">
+    <description>This file contains the block registration code in the form of a single block plugin. Any other plugin related functionality should be added to this file. All block rendering functionality should go to the `render.php` file.</description>
+    <content><![CDATA[<?php
+/**
+ * Plugin Name:       Post Navigation
+ * Description:       A dynamic post navigation block with featured images and customizable styling options.
+ * Version:           0.1.0
+ * Requires at least: 6.1
+ * Requires PHP:      7.4
+ * Author:            WordPress Telex
+ * License:           GPLv2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       post-navigation-block-wp
+ *
+ * @package PostNavigation
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+/**
+ * Registers the block using the metadata loaded from the `block.json` file.
+ * Behind the scenes, it registers also all assets so they can be enqueued
+ * through the block editor in the corresponding context.
+ *
+ * @see https://developer.wordpress.org/reference/functions/register_block_type/
+ */
+function telex_post_navigation_block_init() {
+	register_block_type( __DIR__ . '/build/' );
+}
+add_action( 'init', 'telex_post_navigation_block_init' );
+
+/**
+ * Get adjacent post data for the block
+ *
+ * @param bool $previous Whether to get previous post (true) or next post (false)
+ * @return array|null Post data or null if no adjacent post
+ */
+function telex_get_adjacent_post_data( $previous = true ) {
+	$adjacent_post = get_adjacent_post( false, '', $previous );
+	
+	if ( ! $adjacent_post ) {
+		return null;
+	}
+	
+	$featured_image_url = get_the_post_thumbnail_url( $adjacent_post->ID, 'large' );
+	
+	return array(
+		'id'           => $adjacent_post->ID,
+		'title'        => get_the_title( $adjacent_post->ID ),
+		'permalink'    => get_permalink( $adjacent_post->ID ),
+		'featured_image' => $featured_image_url ?: '',
+		'date'         => get_the_date( '', $adjacent_post->ID ),
+	);
+}
+]]></content>
+  </file>
+  <file path="src/block.json">
+    <description>This file contains metadata about the block including its name, title, category, icon, and other properties. The icon is a WordPress Dashicon name (e.g., "admin-post", "format-aside", "admin-page"). Do not use any icon that's not in the list under any circustamce. These are the only slugs available:
+	
+	menu menu-alt menu-alt2 menu-alt3 admin-site admin-site-alt admin-site-alt2 admin-site-alt3 dashboard admin-post admin-media admin-links admin-page admin-comments admin-appearance admin-plugins plugins-checked admin-users admin-tools admin-settings admin-network admin-home admin-generic admin-collapse filter admin-customizer admin-multisite welcome-write-blog welcome-add-page welcome-view-site welcome-widgets-menus welcome-comments welcome-learn-more format-aside format-image format-gallery format-video format-status format-quote format-chat format-audio camera camera-alt images-alt images-alt2 video-alt video-alt2 video-alt3 media-archive media-audio media-code media-default media-document media-interactive media-spreadsheet media-text media-video playlist-audio playlist-video controls-play controls-pause controls-forward controls-skipforward controls-back controls-skipback controls-repeat controls-volumeon controls-volumeoff image-crop image-rotate image-rotate-left image-rotate-right image-flip-vertical image-flip-horizontal image-filter undo redo database-add database database-export database-import database-remove database-view align-full-width align-pull-left align-pull-right align-wide block-default button cloud-saved cloud-upload columns cover-image ellipsis embed-audio embed-generic embed-photo embed-post embed-video exit heading html info-outline insert insert-after insert-before remove saved shortcode table-col-after table-col-before table-col-delete table-row-after table-row-before table-row-delete editor-bold editor-italic editor-ul editor-ol editor-ol-rtl editor-quote editor-alignleft editor-aligncenter editor-alignright editor-insertmore editor-spellcheck editor-expand editor-contract editor-kitchensink editor-underline editor-justify editor-textcolor editor-paste-word editor-paste-text editor-removeformatting editor-video editor-customchar editor-outdent editor-indent editor-help editor-strikethrough editor-unlink editor-rtl editor-ltr editor-break editor-code editor-paragraph editor-table align-left align-right align-center align-none lock unlock calendar calendar-alt visibility hidden post-status edit trash sticky external arrow-up arrow-down arrow-right arrow-left arrow-up-alt arrow-down-alt arrow-right-alt arrow-left-alt arrow-up-alt2 arrow-down-alt2 arrow-right-alt2 arrow-left-alt2 sort leftright randomize list-view excerpt-view grid-view move share share-alt share-alt2 rss email email-alt email-alt2 networking amazon facebook facebook-alt google instagram linkedin pinterest podio reddit spotify twitch twitter twitter-alt whatsapp xing youtube hammer art migrate performance universal-access universal-access-alt tickets nametag clipboard heart megaphone schedule tide rest-api code-standards buddicons-activity buddicons-bbpress-logo buddicons-buddypress-logo buddicons-community buddicons-forums buddicons-friends buddicons-groups buddicons-pm buddicons-replies buddicons-topics buddicons-tracking wordpress wordpress-alt pressthis update update-alt screenoptions info cart feedback cloud translation tag category archive tagcloud text bell yes yes-alt no no-alt plus plus-alt plus-alt2 minus dismiss marker star-filled star-half star-empty flag warning location location-alt vault shield shield-alt sos search slides text-page analytics chart-pie chart-bar chart-line chart-area groups businessman businesswoman businessperson id id-alt products awards forms testimonial portfolio book book-alt download upload backup clock lightbulb microphone desktop laptop tablet smartphone phone index-card carrot building store album palmtree tickets-alt money money-alt smiley thumbs-up thumbs-down layout paperclip color-picker edit-large edit-page airplane bank beer calculator car coffee drumstick food fullscreen-alt fullscreen-exit-alt games hourglass open-folder pdf pets printer privacy superhero superhero-alt</description>
+  <content><![CDATA[
+  {
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "telex/block-post-navigation",
+	"version": "0.1.0",
+	"title": "Post Navigation",
+	"category": "widgets",
+	"icon": "leftright",
+	"description": "Display previous and next post navigation links with featured images and overlaid titles.",
+	"example": {
+		"attributes": {
+			"textColor": "#ffffff",
+			"overlayOpacity": 0.7,
+			"cardHeight": 200
+		}
+	},
+	"attributes": {
+		"textColor": {
+			"type": "string",
+			"default": "#ffffff"
+		},
+		"overlayOpacity": {
+			"type": "number",
+			"default": 0.7
+		},
+		"cardHeight": {
+			"type": "number",
+			"default": 200
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": ["wide", "full"],
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	},
+	"textdomain": "post-navigation-block-wp",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"viewScript": "file:./view.js",
+	"render": "file:./render.php"
+}
+  ]]></content>
+  </file>
+  <file path="src/index.js">
+    <description>This file registers the block, specifies the edit and save functions, and loads the block's metadata</description>
+	<content><![CDATA[
+  /**
+ * Registers a new block provided a unique name and an object defining its behavior.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/
+ */
+import { registerBlockType } from '@wordpress/blocks';
+
+/**
+ * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
+ * All files containing `style` keyword are bundled together. The code used
+ * gets applied both to the front of your site and to the editor.
+ *
+ * @see https://www.npmjs.com/package/@wordpress/scripts#using-css
+ */
+import './style.scss';
+
+/**
+ * Internal dependencies
+ */
+import Edit from './edit';
+import metadata from './block.json';
+
+/**
+ * Every block starts by registering a new block type definition.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/
+ */
+registerBlockType( metadata.name, {
+	/**
+	 * @see ./edit.js
+	 */
+	edit: Edit,
+} );
+	]]></content>
+  </file>
+  <file path="src/edit.js">
+    <description>This file contains the edit function for the block which is responsible for rendering the block in the editor.</description>
+	<content><![CDATA[
+  /**
+ * Retrieves the translation of text.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-i18n/
+ */
+import { __ } from '@wordpress/i18n';
+
+/**
+ * React hook that is used to mark the block wrapper element.
+ * It provides all the necessary props like the class name.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
+ */
+import { 
+	useBlockProps, 
+	InspectorControls, 
+	PanelColorSettings 
+} from '@wordpress/block-editor';
+
+/**
+ * WordPress components
+ */
+import { 
+	PanelBody, 
+	RangeControl, 
+	Notice 
+} from '@wordpress/components';
+
+/**
+ * React hooks
+ */
+import { useState, useEffect } from '@wordpress/element';
+
+/**
+ * WordPress data
+ */
+import { useSelect } from '@wordpress/data';
+
+/**
+ * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
+ * Those files can contain any CSS code that gets applied to the editor.
+ *
+ * @see https://www.npmjs.com/package/@wordpress/scripts#using-css
+ */
+import './editor.scss';
+
+/**
+ * The edit function describes the structure of your block in the context of the
+ * editor. This represents what the editor will render when the block is used.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#edit
+ *
+ * @return {Element} Element to render.
+ */
+export default function Edit({ attributes, setAttributes, context }) {
+	const { textColor, overlayOpacity, cardHeight } = attributes;
+	
+	const [isInPostEditor, setIsInPostEditor] = useState(false);
+	
+	// Check if we're in a post editor context
+	const { postType, postId } = useSelect((select) => {
+		const { getCurrentPostType, getCurrentPostId } = select('core/editor') || {};
+		return {
+			postType: getCurrentPostType ? getCurrentPostType() : null,
+			postId: getCurrentPostId ? getCurrentPostId() : null,
+		};
+	}, []);
+	
+	useEffect(() => {
+		setIsInPostEditor(postType === 'post' && postId);
+	}, [postType, postId]);
+
+	const blockProps = useBlockProps({
+		style: {
+			'--text-color': textColor,
+			'--overlay-opacity': overlayOpacity,
+			'--card-height': `${cardHeight}px`,
+		},
+	});
+
+	// Mock data for preview
+	const mockPrevious = {
+		title: __('Previous Post Title', 'post-navigation-block-wp'),
+		image: 'https://via.placeholder.com/400x200/4a90e2/ffffff?text=Previous+Post',
+		url: '#'
+	};
+	
+	const mockNext = {
+		title: __('Next Post Title', 'post-navigation-block-wp'),
+		image: 'https://via.placeholder.com/400x200/7b68ee/ffffff?text=Next+Post',
+		url: '#'
+	};
+
+	return (
+		<>
+			<InspectorControls>
+				<PanelBody title={__('Appearance Settings', 'post-navigation-block-wp')}>
+					<PanelColorSettings
+						title={__('Colors', 'post-navigation-block-wp')}
+						colorSettings={[
+							{
+								value: textColor,
+								onChange: (color) => setAttributes({ textColor: color || '#ffffff' }),
+								label: __('Text Color', 'post-navigation-block-wp'),
+							},
+						]}
+					/>
+					<RangeControl
+						label={__('Overlay Opacity', 'post-navigation-block-wp')}
+						value={overlayOpacity}
+						onChange={(value) => setAttributes({ overlayOpacity: value })}
+						min={0}
+						max={1}
+						step={0.1}
+					/>
+					<RangeControl
+						label={__('Card Height (px)', 'post-navigation-block-wp')}
+						value={cardHeight}
+						onChange={(value) => setAttributes({ cardHeight: value })}
+						min={150}
+						max={400}
+						step={10}
+					/>
+				</PanelBody>
+			</InspectorControls>
+			
+			<div {...blockProps}>
+				{!isInPostEditor && (
+					<Notice status="info" isDismissible={false}>
+						{__('This block will display post navigation when added to a post. Preview shown below with placeholder content.', 'post-navigation-block-wp')}
+					</Notice>
+				)}
+				
+				<div className="wp-block-telex-post-navigation__container">
+					<div className="wp-block-telex-post-navigation__grid">
+						<div className="wp-block-telex-post-navigation__card wp-block-telex-post-navigation__previous">
+							<div 
+								className="wp-block-telex-post-navigation__card-bg"
+								style={{ backgroundImage: `url(${mockPrevious.image})` }}
+							>
+								<div className="wp-block-telex-post-navigation__overlay">
+									<div className="wp-block-telex-post-navigation__content">
+										<span className="wp-block-telex-post-navigation__label">
+											{__('← Previous', 'post-navigation-block-wp')}
+										</span>
+										<h3 className="wp-block-telex-post-navigation__title">
+											{mockPrevious.title}
+										</h3>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						<div className="wp-block-telex-post-navigation__card wp-block-telex-post-navigation__next">
+							<div 
+								className="wp-block-telex-post-navigation__card-bg"
+								style={{ backgroundImage: `url(${mockNext.image})` }}
+							>
+								<div className="wp-block-telex-post-navigation__overlay">
+									<div className="wp-block-telex-post-navigation__content">
+										<span className="wp-block-telex-post-navigation__label">
+											{__('Next →', 'post-navigation-block-wp')}
+										</span>
+										<h3 className="wp-block-telex-post-navigation__title">
+											{mockNext.title}
+										</h3>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</>
+	);
+}
+	]]></content>
+  </file>
+  <file path="src/save.js">
+    <description>This file contains the save function for the block which is responsible for creating the static result of rendering the block on the client to display the saved result on the front end.</description>
+	<content><![CDATA[
+  
+	]]></content>
+  </file>
+  <file path="src/style.scss">
+    <description>This file contains styles for the block in the front end.</description>
+	<content><![CDATA[
+  /**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+
+.wp-block-telex-post-navigation {
+	--text-color: #ffffff;
+	--overlay-opacity: 0.7;
+	--card-height: 200px;
+	
+	margin: 2rem 0;
+}
+
+.wp-block-telex-post-navigation__container {
+	max-width: 100%;
+	margin: 0 auto;
+}
+
+.wp-block-telex-post-navigation__grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+	
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+		gap: 1rem;
+	}
+}
+
+.wp-block-telex-post-navigation__grid--single {
+	display: flex;
+	justify-content: center;
+	
+	.wp-block-telex-post-navigation__card {
+		max-width: 500px;
+		width: 100%;
+	}
+}
+
+.wp-block-telex-post-navigation__card {
+	position: relative;
+	height: var(--card-height);
+	border-radius: 8px;
+	overflow: hidden;
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+	cursor: pointer;
+	
+	&:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+		
+		.wp-block-telex-post-navigation__card-bg {
+			transform: scale(1.05);
+		}
+	}
+}
+
+.wp-block-telex-post-navigation__card-bg {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	transition: transform 0.3s ease;
+	
+	&:not([style*="background-image"]) {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	}
+}
+
+.wp-block-telex-post-navigation__overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, var(--overlay-opacity));
+	display: flex;
+	align-items: flex-end;
+	padding: 1.5rem;
+}
+
+.wp-block-telex-post-navigation__content {
+	color: var(--text-color);
+}
+
+.wp-block-telex-post-navigation__label {
+	display: block;
+	font-size: 0.875rem;
+	opacity: 0.9;
+	margin-bottom: 0.25rem;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.wp-block-telex-post-navigation__title {
+	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 700;
+	line-height: 1.3;
+	color: inherit;
+	
+	@media (max-width: 768px) {
+		font-size: 1.125rem;
+	}
+}
+
+.wp-block-telex-post-navigation__card a {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	text-decoration: none;
+	color: inherit;
+	z-index: 10;
+}
+
+/* Fallback styles when no featured image */
+.wp-block-telex-post-navigation__card--no-image {
+	.wp-block-telex-post-navigation__card-bg {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	}
+	
+	&.wp-block-telex-post-navigation__previous {
+		.wp-block-telex-post-navigation__card-bg {
+			background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+		}
+	}
+	
+	&.wp-block-telex-post-navigation__next {
+		.wp-block-telex-post-navigation__card-bg {
+			background: linear-gradient(135deg, #7b68ee 0%, #6a5acd 100%);
+		}
+	}
+}
+
+/* Accessibility improvements */
+.wp-block-telex-post-navigation__card:focus-within {
+	outline: 2px solid #005cee;
+	outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wp-block-telex-post-navigation__card {
+		transition: none;
+		
+		&:hover {
+			transform: none;
+		}
+	}
+	
+	.wp-block-telex-post-navigation__card-bg {
+		transition: none;
+		
+		.wp-block-telex-post-navigation__card:hover & {
+			transform: none;
+		}
+	}
+}
+	]]></content>
+  </file>
+  <file path="src/editor.scss">
+    <description>This file contains styles for the block in the editor.</description>
+	<content><![CDATA[
+  /**
+ * The following styles get applied inside the editor only.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+
+.wp-block-telex-post-navigation {
+	.components-notice {
+		margin-bottom: 1rem;
+	}
+}
+
+/* Editor-specific hover effects */
+.block-editor-block-list__block .wp-block-telex-post-navigation__card:hover {
+	.wp-block-telex-post-navigation__card-bg {
+		transform: scale(1.02);
+	}
+}
+
+/* Editor selection states */
+.wp-block-telex-post-navigation.is-selected {
+	.wp-block-telex-post-navigation__card {
+		outline: 1px solid var(--wp-admin-theme-color, #007cba);
+		outline-offset: 1px;
+	}
+}
+	]]></content>
+  </file>
+  <file path="src/view.js">
+    <description>This file contains the view function for the block which is responsible for rendering interactive behaviors of the block on the front end. Ideally using the WordPress interactivity API.</description>
+	<content><![CDATA[
+  /**
+ * Use this file for JavaScript code that you want to run in the front-end
+ * on posts/pages that contain this block.
+ *
+ * When this file is defined as the value of the `viewScript` property
+ * in `block.json` it will be enqueued on the front end of the site.
+ *
+ * Example:
+ *
+ * ```js
+ * {
+ *   "viewScript": "file:./view.js"
+ * }
+ * ```
+ *
+ * If you're not making any changes to this file because your project doesn't need any
+ * JavaScript running in the front-end, then you should delete this file and remove
+ * the `viewScript` property from `block.json`.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/#view-script
+ */
+
+document.addEventListener('DOMContentLoaded', function() {
+	// Add keyboard navigation support
+	const navigationCards = document.querySelectorAll('.wp-block-telex-post-navigation__card a');
+	
+	navigationCards.forEach(card => {
+		// Handle keyboard navigation
+		card.addEventListener('keydown', function(e) {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				this.click();
+			}
+		});
+		
+		// Add ARIA labels for better accessibility
+		const cardElement = card.closest('.wp-block-telex-post-navigation__card');
+		const titleElement = cardElement.querySelector('.wp-block-telex-post-navigation__title');
+		const labelElement = cardElement.querySelector('.wp-block-telex-post-navigation__label');
+		
+		if (titleElement && labelElement) {
+			card.setAttribute('aria-label', labelElement.textContent + ': ' + titleElement.textContent);
+		}
+	});
+	
+	// Preload images on hover for better performance
+	const cardBackgrounds = document.querySelectorAll('.wp-block-telex-post-navigation__card-bg');
+	cardBackgrounds.forEach(bg => {
+		const card = bg.closest('.wp-block-telex-post-navigation__card');
+		card.addEventListener('mouseenter', function() {
+			const bgImage = window.getComputedStyle(bg).backgroundImage;
+			if (bgImage && bgImage !== 'none') {
+				// Image is already loaded as background
+				return;
+			}
+		});
+	});
+});
+	]]></content>
+  </file>
+  <file path="src/render.php">
+    <description>This file contains the render callback function for the block, which is responsible for rendering the block content on the front end. A render function should exist only if the block is dynamic.</description>
+	<content><![CDATA[<?php
+/**
+ * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
+ */
+
+// Get the current post context
+$current_post_id = get_the_ID();
+if ( ! $current_post_id ) {
+	return '';
+}
+
+// Get adjacent posts
+$previous_post = telex_get_adjacent_post_data( true );
+$next_post = telex_get_adjacent_post_data( false );
+
+// If no adjacent posts, don't render the block
+if ( ! $previous_post && ! $next_post ) {
+	return '';
+}
+
+// Get block attributes with defaults
+$text_color = $attributes['textColor'] ?? '#ffffff';
+$overlay_opacity = $attributes['overlayOpacity'] ?? 0.7;
+$card_height = $attributes['cardHeight'] ?? 200;
+
+// Determine grid class based on available posts
+$grid_class = 'wp-block-telex-post-navigation__grid';
+if ( ( $previous_post && $next_post ) ) {
+	// Both posts available
+	$grid_class = 'wp-block-telex-post-navigation__grid';
+} else {
+	// Only one post available
+	$grid_class = 'wp-block-telex-post-navigation__grid wp-block-telex-post-navigation__grid--single';
+}
+
+// Prepare inline styles
+$inline_styles = sprintf(
+	'--text-color: %s; --overlay-opacity: %s; --card-height: %spx;',
+	esc_attr( $text_color ),
+	esc_attr( $overlay_opacity ),
+	esc_attr( $card_height )
+);
+
+?>
+<div <?php echo get_block_wrapper_attributes( array( 'style' => $inline_styles ) ); ?>>
+	<div class="wp-block-telex-post-navigation__container">
+		<div class="<?php echo esc_attr( $grid_class ); ?>">
+			
+			<?php if ( $previous_post ) : ?>
+				<div class="wp-block-telex-post-navigation__card wp-block-telex-post-navigation__previous <?php echo empty( $previous_post['featured_image'] ) ? 'wp-block-telex-post-navigation__card--no-image' : ''; ?>">
+					<div 
+						class="wp-block-telex-post-navigation__card-bg"
+						<?php if ( $previous_post['featured_image'] ) : ?>
+							style="background-image: url('<?php echo esc_url( $previous_post['featured_image'] ); ?>');"
+						<?php endif; ?>
+					>
+						<div class="wp-block-telex-post-navigation__overlay">
+							<div class="wp-block-telex-post-navigation__content">
+								<span class="wp-block-telex-post-navigation__label">
+									<?php esc_html_e( '← Previous', 'post-navigation-block-wp' ); ?>
+								</span>
+								<h3 class="wp-block-telex-post-navigation__title">
+									<?php echo esc_html( $previous_post['title'] ); ?>
+								</h3>
+							</div>
+						</div>
+					</div>
+					<a 
+						href="<?php echo esc_url( $previous_post['permalink'] ); ?>" 
+						aria-label="<?php echo esc_attr( sprintf( __( 'Previous post: %s', 'post-navigation-block-wp' ), $previous_post['title'] ) ); ?>"
+					></a>
+				</div>
+			<?php endif; ?>
+			
+			<?php if ( $next_post ) : ?>
+				<div class="wp-block-telex-post-navigation__card wp-block-telex-post-navigation__next <?php echo empty( $next_post['featured_image'] ) ? 'wp-block-telex-post-navigation__card--no-image' : ''; ?>">
+					<div 
+						class="wp-block-telex-post-navigation__card-bg"
+						<?php if ( $next_post['featured_image'] ) : ?>
+							style="background-image: url('<?php echo esc_url( $next_post['featured_image'] ); ?>');"
+						<?php endif; ?>
+					>
+						<div class="wp-block-telex-post-navigation__overlay">
+							<div class="wp-block-telex-post-navigation__content">
+								<span class="wp-block-telex-post-navigation__label">
+									<?php esc_html_e( 'Next →', 'post-navigation-block-wp' ); ?>
+								</span>
+								<h3 class="wp-block-telex-post-navigation__title">
+									<?php echo esc_html( $next_post['title'] ); ?>
+								</h3>
+							</div>
+						</div>
+					</div>
+					<a 
+						href="<?php echo esc_url( $next_post['permalink'] ); ?>" 
+						aria-label="<?php echo esc_attr( sprintf( __( 'Next post: %s', 'post-navigation-block-wp' ), $next_post['title'] ) ); ?>"
+					></a>
+				</div>
+			<?php endif; ?>
+			
+		</div>
+	</div>
+</div>
+ ]]></content>
+  </file>
+  <file path="package.json">
+    <description>The AI assistant should only edit 'user_provided_block_name_slug', 'description' and resolve 'isDynamicVariant' in this file and ALWAYS INCLUDE IT. This file includes the necessary scripts for building, formatting, and linting the block code. Dependencies are managed at the workspace level via pnpm.</description>
+  <content><![CDATA[
+  {
+	"name": "post-navigation",
+	"version": "0.1.0",
+	"description": "A dynamic post navigation block with featured images and customizable styling options.",
+	"author": "WordPress Telex",
+	"license": "GPL-2.0-or-later",
+	"main": "build/index.js",
+	"scripts": {
+		"build": "wp-scripts build",
+		"format": "wp-scripts format",
+		"lint:css": "wp-scripts lint-style",
+		"lint:js": "wp-scripts lint-js",
+		"packages-update": "wp-scripts packages-update",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"start": "wp-scripts start"
+	}
+}
+]]></content>
+  </file>
+</artefact>

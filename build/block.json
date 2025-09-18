@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "telex/block-post-navigation",
+  "version": "0.1.0",
+  "title": "Post Navigation",
+  "category": "widgets",
+  "icon": "leftright",
+  "description": "Display previous and next post navigation links with featured images and overlaid titles.",
+  "example": {
+    "attributes": {
+      "textColor": "#ffffff",
+      "overlayOpacity": 0.7,
+      "cardHeight": 200
+    }
+  },
+  "attributes": {
+    "textColor": {
+      "type": "string",
+      "default": "#ffffff"
+    },
+    "overlayOpacity": {
+      "type": "number",
+      "default": 0.7
+    },
+    "cardHeight": {
+      "type": "number",
+      "default": 200
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "textdomain": "post-navigation-block-wp",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}

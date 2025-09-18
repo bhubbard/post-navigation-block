@@ -1,0 +1,168 @@
+
+  /**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+
+.wp-block-telex-post-navigation {
+	--text-color: #ffffff;
+	--overlay-opacity: 0.7;
+	--card-height: 200px;
+	
+	margin: 2rem 0;
+}
+
+.wp-block-telex-post-navigation__container {
+	max-width: 100%;
+	margin: 0 auto;
+}
+
+.wp-block-telex-post-navigation__grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+	
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+		gap: 1rem;
+	}
+}
+
+.wp-block-telex-post-navigation__grid--single {
+	display: flex;
+	justify-content: center;
+	
+	.wp-block-telex-post-navigation__card {
+		max-width: 500px;
+		width: 100%;
+	}
+}
+
+.wp-block-telex-post-navigation__card {
+	position: relative;
+	height: var(--card-height);
+	border-radius: 8px;
+	overflow: hidden;
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+	cursor: pointer;
+	
+	&:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+		
+		.wp-block-telex-post-navigation__card-bg {
+			transform: scale(1.05);
+		}
+	}
+}
+
+.wp-block-telex-post-navigation__card-bg {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	transition: transform 0.3s ease;
+	
+	&:not([style*="background-image"]) {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	}
+}
+
+.wp-block-telex-post-navigation__overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, var(--overlay-opacity));
+	display: flex;
+	align-items: flex-end;
+	padding: 1.5rem;
+}
+
+.wp-block-telex-post-navigation__content {
+	color: var(--text-color);
+}
+
+.wp-block-telex-post-navigation__label {
+	display: block;
+	font-size: 0.875rem;
+	opacity: 0.9;
+	margin-bottom: 0.25rem;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.wp-block-telex-post-navigation__title {
+	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 700;
+	line-height: 1.3;
+	color: inherit;
+	
+	@media (max-width: 768px) {
+		font-size: 1.125rem;
+	}
+}
+
+.wp-block-telex-post-navigation__card a {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	text-decoration: none;
+	color: inherit;
+	z-index: 10;
+}
+
+/* Fallback styles when no featured image */
+.wp-block-telex-post-navigation__card--no-image {
+	.wp-block-telex-post-navigation__card-bg {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	}
+	
+	&.wp-block-telex-post-navigation__previous {
+		.wp-block-telex-post-navigation__card-bg {
+			background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+		}
+	}
+	
+	&.wp-block-telex-post-navigation__next {
+		.wp-block-telex-post-navigation__card-bg {
+			background: linear-gradient(135deg, #7b68ee 0%, #6a5acd 100%);
+		}
+	}
+}
+
+/* Accessibility improvements */
+.wp-block-telex-post-navigation__card:focus-within {
+	outline: 2px solid #005cee;
+	outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wp-block-telex-post-navigation__card {
+		transition: none;
+		
+		&:hover {
+			transform: none;
+		}
+	}
+	
+	.wp-block-telex-post-navigation__card-bg {
+		transition: none;
+		
+		.wp-block-telex-post-navigation__card:hover & {
+			transform: none;
+		}
+	}
+}
+	
